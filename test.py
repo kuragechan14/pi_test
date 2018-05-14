@@ -17,8 +17,8 @@ def getSignedNumber(number):
 		return number & 65535
 
 def read_word(address, adr):
-    high = bus.read_byte_data(address, adr)
-    low = bus.read_byte_data(address, adr + 1)
+    high = i2c_bus.read_byte_data(address, adr)
+    low = i2c_bus.read_byte_data(address, adr + 1)
     val = (high << 8) + low
     return val
 
@@ -47,42 +47,42 @@ while True:
 	z2=z/256.0
 	
 	mx = read_word_2c(addrHMC, 3)
-    my = read_word_2c(addrHMC, 7)
-    mz = read_word_2c(addrHMC, 5)
-    mx = mx*0.92
-    my = my*0.92
-    mz = mz*0.92
+	my = read_word_2c(addrHMC, 7)
+	mz = read_word_2c(addrHMC, 5)
+	mx = mx*0.92
+	my = my*0.92
+	mz = mz*0.92
 	
 	i2c_bus.write_byte(i2c_address,0x28)
-    X_L = i2c_bus.read_byte(i2c_address)
-    i2c_bus.write_byte(i2c_address,0x29)
-    X_H = i2c_bus.read_byte(i2c_address)
-    X = X_H << 8 | X_L
+    	X_L = i2c_bus.read_byte(i2c_address)
+    	i2c_bus.write_byte(i2c_address,0x29)
+    	X_H = i2c_bus.read_byte(i2c_address)
+    	X = X_H << 8 | X_L
 
-    i2c_bus.write_byte(i2c_address,0x2A)
-    Y_L = i2c_bus.read_byte(i2c_address)
-    i2c_bus.write_byte(i2c_address,0x2B)
-    Y_H = i2c_bus.read_byte(i2c_address)
-    Y = Y_H << 8 | Y_L
+    	i2c_bus.write_byte(i2c_address,0x2A)
+    	Y_L = i2c_bus.read_byte(i2c_address)
+    	i2c_bus.write_byte(i2c_address,0x2B)
+    	Y_H = i2c_bus.read_byte(i2c_address)
+    	Y = Y_H << 8 | Y_L
 
-    i2c_bus.write_byte(i2c_address,0x2C)
-    Z_L = i2c_bus.read_byte(i2c_address)
-    i2c_bus.write_byte(i2c_address,0x2D)
-    Z_H = i2c_bus.read_byte(i2c_address)
-    Z = Z_H << 8 | Z_L
+    	i2c_bus.write_byte(i2c_address,0x2C)
+    	Z_L = i2c_bus.read_byte(i2c_address)
+    	i2c_bus.write_byte(i2c_address,0x2D)
+    	Z_H = i2c_bus.read_byte(i2c_address)
+    	Z = Z_H << 8 | Z_L
 
-    X = getSignedNumber(X)
-    Y = getSignedNumber(Y)
-    Z = getSignedNumber(Z)
+    	X = getSignedNumber(X)
+    	Y = getSignedNumber(Y)
+    	Z = getSignedNumber(Z)
 
-    X=(X*8.75)/1000
-    Y=(Y*8.75)/1000
-    Z=(Z*8.75)/1000
+    	X=(X*8.75)/1000
+    	Y=(Y*8.75)/1000
+    	Z=(Z*8.75)/1000
 
-    #print string.rjust(`X`, 10),
-    #print string.rjust(`Y`, 10),
-    #print string.rjust(`Z`, 10)
-    #print('Altitude = {0:0.2f} m'.format(sensor.read_altitude()))
-	print('ACC:x={0},y={1},z={2};GYRO:x={3},y={4},z={5};MAG:x={6},y={7},z={8};Alti:{9:0.2f}'
+    	#print string.rjust(`X`, 10),
+    	#print string.rjust(`Y`, 10),
+    	#print string.rjust(`Z`, 10)
+    	#print('Altitude = {0:0.2f} m'.format(sensor.read_altitude()))
+	print('ACC:x={0:0.3f},y={1:0.3f},z={2:0.3f};GYRO:x={3:0.3f},y={4:0.3f},z={5:0.3f};MAG:x={6:0.3f},y={7:0.3f},z={8:0.3f};Alti:{9:0.2f}'
 	.format(x2,y2,z2,X,Y,Z,mx,my,mz,sensor.read_altitude()))
 	time.sleep(0.5)
