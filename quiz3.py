@@ -10,7 +10,9 @@ import RPi.GPIO as GPIO
 LED_G=11
 LED_R=12
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(LED_PIN,GPIO.OUT)
+GPIO.setup(LED_G,GPIO.OUT)
+GPIO.setup(LED_R,GPIO.OUT)
+GPIO.setwarnings(False)
 
 accel=Adafruit_ADXL345.ADXL345()
 sensor = BMP085.BMP085()
@@ -39,8 +41,6 @@ def read_word_2c(address, adr):
         return val
 		
 
-
-
 i2c_address=0x69
 i2c_bus.write_byte_data(i2c_address,0x20,0x0F)
 i2c_bus.write_byte_data(i2c_address,0x23,0x20)
@@ -49,10 +49,10 @@ i2c_bus.write_byte_data(addrHMC, 0, 0b01110000)  # Set to 8 samples @ 15Hz
 i2c_bus.write_byte_data(addrHMC, 1, 0b00100000)  # 1.3 gain LSb / Gauss 1090 (default)
 i2c_bus.write_byte_data(addrHMC, 2, 0b00000000)  # Continuous sampling
 
-task_list=['Shaking (accelerometer)',
-        'Heading to North (compass)',
-        'Rotate more than 20 degrees (gyro or compass)',
-        'Rise up the sensor(altitude)']
+task_list=["Shaking (accelerometer)",
+        "Heading to North (compass)",
+        "Rotate more than 20 degrees (gyro or compass)",
+        "Rise up the sensor(altitude)"]
         
 def get_acc():
     x,y,z=accel.read()
@@ -98,8 +98,8 @@ def get_alt():
     sensor.read_altitude()
 
 def random_task():
-    task=random.randint(0,4)
-    print('========[New Task]========',task_list[task])
+    task=random.randint(0,3)
+    print("========[New Task]========:",task,task_list[task])
     tstart=time.time()
     finish=0
     oax,oay,oaz=get_acc()
@@ -117,15 +117,15 @@ while True:
     tint=tcurrent-tstart
 
     if(finish==0):
-        if tint>0 && tint<=3:
-            print(tint,'[safe]',task_list[task])
+        if (tint>0 and tint<=3):
+            print(tint,"[safe]",task_list[task])
             GPIO.output(LED_G,GPIO.HIGH)
             GPIO.output(LED_R,GPIO.LOW)
-        else if tint>3 && tint<=5:
-            print(tint,'[alarm]',task_list[task])
+        elif (tint>3 and tint<=5):
+            print(tint,"[alarm]",task_list[task])
             GPIO.output(LED_R,GPIO.HIGH)
             GPIO.output(LED_G,GPIO.LOW)
-        else:   #>5
+        else:
             print('========[Fail]========')
             break
     else:
@@ -137,22 +137,21 @@ while True:
     if (task==0):   #shake
         cax,cay,caz=get_acc()
         print('ACC:x={0:0.3f},y={1:0.3f},z={2:0.3f}'.format(cax,cay,caz))
-        if(cax-oax >=5 || cay-oay >=5 || caz-oaz >=5 ):
+        if(cax-oax >=5 or cay-oay >=5 or caz-oaz >=5 ):
             finish=1
-    else if (task==1):  #north
+    elif (task==1):  #north
         cmx,cmy,cmz=get_mag()
         print('MAG:x={0:0.3f},y={1:0.3f},z={2:0.3f}'.format(cmx,cmy,cmz))
-        if((cmx-omx > 0 && cmx-omx < 10) || (cmy-omy > 0 && cmy-omy < 10) || (cmz-omz > 0 && cmz-omz < 10)):
+        if((cmx-omx > 0 and cmx-omx < 10) or (cmy-omy > 0 and cmy-omy < 10) or (cmz-omz > 0 and cmz-omz < 10)):
             finish=1
-    else if (task==2):  #20 degree
+    elif (task==2):  #20 degree
         cgx,cgy,cgz=get_gry()
         print('GYRO:x={0:0.3f},y={1:0.3f},z={2:0.3f}'.format(cgx,cgy,cgz))
-        if(cgx-ogx >= 20 || cgy-ogy >= 20 || cgz-ogz >=20):
+        if(cgx-ogx >= 20 or cgy-ogy >= 20 or cgz-ogz >=20):
             finish=1
-    else if (task==3):  #rise up
+    elif (task==3):  #rise up
         calt=get_alt()
         print('alti:{0:0.2f}'.format(calt))
         if(calt-oalt>=0.3):
             finish=1
-
-time.sleep(0.5)
+    time.sleep(0.5)
